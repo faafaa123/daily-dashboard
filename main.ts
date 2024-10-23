@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 // @ts-ignore
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { sun } from './classes/sun';
 
 let camera: THREE.OrthographicCamera;
 let controls: any;
@@ -30,7 +31,7 @@ async function init() {
 
     // Adding a flat plane
     const geometry = new THREE.PlaneGeometry(200, 200);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+    const material = new THREE.MeshBasicMaterial({ color: 0x103D67, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2; // Rotate the plane to lie flat
     scene.add(plane);
@@ -46,7 +47,7 @@ async function init() {
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
     controls.maxPolarAngle = Math.PI / 2;
-    controls.target = new THREE.Vector3(1, 1, 1)
+    // controls.target = new THREE.Vector3(1, 1, 1)
 
     // setup light
     const hemiLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.3);
@@ -54,6 +55,8 @@ async function init() {
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(0, 1, 1).normalize();
     scene.add(light);
+
+    let theSun = new sun()
 
 }
 

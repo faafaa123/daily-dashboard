@@ -1,7 +1,10 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import moment from 'moment';
+import * as THREE from 'three';
 
 export class sun {
+    scene: THREE.Scene;
+
     latitude = 51.407785;
     longitude = 9.121936;
 
@@ -11,12 +14,17 @@ export class sun {
 
     sunset: moment.Moment
     sunrise: moment.Moment
-    daylightDuration: moment.Duration
     currentTime = moment().subtract(10, 'hours');
+    daylightDuration: moment.Duration
     elapsedDaylight: moment.Duration
-    
-    constructor() {
-        
+
+    radius: number
+    disc: THREE.Mesh;
+
+    constructor(
+        scene: THREE.Scene,
+    ) {
+        this.scene = scene;
     }
 
     async main() {
@@ -31,12 +39,53 @@ export class sun {
 
             if (this.currentTime.isAfter(this.sunrise) && this.currentTime.isBefore(this.sunset)) {
                 this.elapsedDaylight = moment.duration(this.currentTime.diff(this.sunrise));
-              }
+            }
 
         }).catch(async (error: AxiosError) => {
             console.log(error.response);
-
         })
+
+        // Adding a circular disc
+        this.radius = 10;
+        const segments = 512;
+        const circleGeometry = new THREE.CircleGeometry(this.radius, segments);
+        const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFDF22, side: THREE.DoubleSide });
+        this.disc = new THREE.Mesh(circleGeometry, circleMaterial);
+        this.disc.rotation.x = Math.PI / 2;
+        this.disc.position.y = 1
+        this.disc.position.x = -99
+        this.disc.position.z = 20
+        this.scene.add(this.disc);
+
+        this.addSunRays(this.disc, 24, 7); // 24 rays with a length of 10 units
+    }
+
+    addSunRays(disc, numRays, length) {
+        const rayMaterial = new THREE.LineBasicMaterial({ color: 0xFFDF22 });
+
+        for (let i = 0; i < numRays; i++) {
+            const angle = (i / numRays) * Math.PI * 2; // Evenly spaced angles around the circle
+
+            // Start of the ray (at the edge of the disc)
+            const xStart = this.radius * Math.cos(angle);
+            const zStart = this.radius * Math.sin(angle);
+
+            // End of the ray (extending outward from the disc)
+            const xEnd = (this.radius + length) * Math.cos(angle);
+            const zEnd = (this.radius + length) * Math.sin(angle);
+
+            // Create geometry for the ray
+            const rayGeometry = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(xStart, 1, zStart), // Start point of the ray
+                new THREE.Vector3(xEnd, 1, zEnd)      // End point of the ray
+            ]);
+
+            // Create and add the ray to the scene
+            const ray = new THREE.Line(rayGeometry, rayMaterial);
+            ray.rotation.x = Math.PI / 2;
+            ray.position.z = -1;
+            disc.add(ray);
+        }
     }
 
 }

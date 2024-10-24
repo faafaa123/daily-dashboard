@@ -8,13 +8,11 @@ let camera: THREE.OrthographicCamera;
 let controls: any;
 let scene: THREE.Scene;
 let renderer: THREE.Renderer;
-let disc: THREE.Mesh
 
 let theSun: sun
 let duration: number
 let startAtProgress: number
 let startTime: number | null
-let radius: number;
 
 async function init() {
     scene = new THREE.Scene();
@@ -38,7 +36,7 @@ async function init() {
     // Adding a flat plane
     let planeSize: number = 178;
     const geometry = new THREE.PlaneGeometry(planeSize, planeSize);
-    const material = new THREE.MeshBasicMaterial({ color: 0x48708D, side: THREE.DoubleSide });
+    const material = new THREE.MeshBasicMaterial({ color: 0x2574EB, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2; // Rotate the plane to lie flat
     scene.add(plane);
@@ -56,34 +54,13 @@ async function init() {
     controls.maxPolarAngle = Math.PI / 2;
     // controls.target = new THREE.Vector3(0,0,0)
 
-    // setup light
-    const hemiLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.3);
-    scene.add(hemiLight);
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(0, 1, 1).normalize();
-    scene.add(light);
-
-    // Adding a circular disc
-    radius = 10;
-    const segments = 512;
-    const circleGeometry = new THREE.CircleGeometry(radius, segments);
-    const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFDF22, side: THREE.DoubleSide });
-    disc = new THREE.Mesh(circleGeometry, circleMaterial);
-    disc.rotation.x = Math.PI / 2;
-    disc.position.y = 1
-    disc.position.x = -99
-    disc.position.z = 20
-    scene.add(disc);
-
-    theSun = new sun();
+    theSun = new sun(scene);
     await theSun.main()
 
     // Animation parameters
     duration = theSun.daylightDuration.asSeconds(); // in seconds
     startAtProgress = 1 - 2.73 * Math.pow(10, -8) * (theSun.daylightDuration.asMilliseconds() - theSun.elapsedDaylight.asMilliseconds())
     startTime = null;
-
-    addSunRays(disc, 24, 7); // 24 rays with a length of 10 units
 
     setInterval(updateClock, 1000);
 
@@ -123,34 +100,6 @@ function getBezierPoint(t: number, p0: { x: any; z: any; }, p1: { x: any; z: any
     return { x, z };
 }
 
-function addSunRays(disc, numRays, length) {
-    const rayMaterial = new THREE.LineBasicMaterial({ color: 0xFFDF22 });
-
-    for (let i = 0; i < numRays; i++) {
-        const angle = (i / numRays) * Math.PI * 2; // Evenly spaced angles around the circle
-
-        // Start of the ray (at the edge of the disc)
-        const xStart = radius * Math.cos(angle);
-        const zStart = radius * Math.sin(angle);
-
-        // End of the ray (extending outward from the disc)
-        const xEnd = (radius + length) * Math.cos(angle);
-        const zEnd = (radius + length) * Math.sin(angle);
-
-        // Create geometry for the ray
-        const rayGeometry = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(xStart, 1, zStart), // Start point of the ray
-            new THREE.Vector3(xEnd, 1, zEnd)      // End point of the ray
-        ]);
-
-        // Create and add the ray to the scene
-        const ray = new THREE.Line(rayGeometry, rayMaterial);
-        ray.rotation.x = Math.PI / 2;
-        ray.position.z = -1;
-        disc.add(ray);
-    }
-}
-
 const clock = new THREE.Clock();
 function animate(time: number) {
     requestAnimationFrame(animate);
@@ -170,7 +119,7 @@ function animate(time: number) {
 
     // Calculate the current position on the curve
     const position = getBezierPoint(t, p0, p1, p2);
-    disc.position.set(position.x, 1, position.z);
+    theSun.disc.position.set(position.x, 1, position.z);
     render()
     // Stop animation if completed
     if (t >= 1) {

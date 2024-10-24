@@ -47,7 +47,7 @@ async function init() {
     // show axis
     const axesHelper = new THREE.AxesHelper(5000);
     axesHelper.setColors('#fc0303', '#036ffc', '#03fc17')
-    scene.add(axesHelper);
+    // scene.add(axesHelper);
 
     // setup orbitControls
     controls = new OrbitControls(camera, renderer.domElement);
@@ -81,7 +81,7 @@ async function init() {
     console.log(theSun.daylightDuration)
 
     // Animation parameters
-    duration = 6; // 6 hours in seconds
+    duration = theSun.daylightDuration.asSeconds(); // 6 hours in seconds
     startAtProgress = 1-2.73*Math.pow(10, -8)*(theSun.daylightDuration.asMilliseconds()-theSun.elapsedDaylight.asMilliseconds())
     startTime = null;
 

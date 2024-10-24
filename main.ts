@@ -104,6 +104,9 @@ function updateClock() {
     const datum = document.getElementById('datum');
     uhrzeit!.textContent = moment().format('LT').toString();
     datum!.textContent = moment().format('ll').toString();
+
+    const sunset = document.getElementById('sunset');
+    sunset!.textContent = `Sonnenuntergang in ${theSun.daylightDuration.hours() - theSun.elapsedDaylight.hours()} Stunden`;
 }
 
 // Function to calculate positions along a Bezier curve

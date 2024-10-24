@@ -12,7 +12,7 @@ export class sun {
     sunset: moment.Moment
     sunrise: moment.Moment
     daylightDuration: moment.Duration
-    currentTime = moment();
+    currentTime = moment().subtract(10, 'hours');
     elapsedDaylight: moment.Duration
     
     constructor() {

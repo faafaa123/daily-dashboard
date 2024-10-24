@@ -30,7 +30,8 @@ async function init() {
     camera.lookAt(0, 0, 0); // Look at the center of the scene
 
     // Adding a flat plane
-    const geometry = new THREE.PlaneGeometry(200, 200);
+    let planeSize: number = 178;
+    const geometry = new THREE.PlaneGeometry(planeSize, planeSize);
     const material = new THREE.MeshBasicMaterial({ color: 0x103D67, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2; // Rotate the plane to lie flat
@@ -64,9 +65,12 @@ async function init() {
     const disc = new THREE.Mesh(circleGeometry, circleMaterial);
     disc.rotation.x = Math.PI / 2; // Rotate the disc to lie flat
     disc.position.y = 1
+    disc.position.x = -99
+    disc.position.z = 20
     scene.add(disc);
 
-    let theSun = new sun()
+    let theSun = new sun();
+    
 
 }
 

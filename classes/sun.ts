@@ -12,6 +12,8 @@ export class sun {
     sunset: moment.Moment
     sunrise: moment.Moment
     daylightDuration: moment.Duration
+    currentTime = moment();
+    elapsedDaylight: moment.Duration
     
     constructor() {
         
@@ -30,6 +32,12 @@ export class sun {
             console.log("Sonnenuntergang:", this.sunset);
 
             this.daylightDuration = moment.duration(this.sunset.diff(this.sunrise));
+
+            if (this.currentTime.isAfter(this.sunrise) && this.currentTime.isBefore(this.sunset)) {
+                this.elapsedDaylight = moment.duration(this.currentTime.diff(this.sunrise));
+          
+                console.log(this.elapsedDaylight)
+              }
 
         }).catch(async (error: AxiosError) => {
             console.log(error.response);

@@ -9,7 +9,11 @@ let scene: THREE.Scene;
 let renderer: THREE.Renderer;
 let mixer: THREE.AnimationMixer
 let disc: THREE.Object3D<THREE.Object3DEventMap>
-let startTime
+
+let theSun: sun
+let duration: number
+let startAtProgress: number
+let startTime: number | null
 
 async function init() {
     // setup scene and renderer
@@ -72,33 +76,35 @@ async function init() {
     disc.position.z = 20
     scene.add(disc);
 
-    let theSun = new sun();
+    theSun = new sun();
     await theSun.main()
     console.log(theSun.daylightDuration)
 
-
+    // Animation parameters
+    duration = 6; // 6 hours in seconds
+    startAtProgress = 1-2.73*Math.pow(10, -8)*(theSun.daylightDuration.asMilliseconds()-theSun.elapsedDaylight.asMilliseconds())
+    startTime = null;
 
 }
 
 // Function to calculate positions along a Bezier curve
-function getBezierPoint(t, p0, p1, p2) {
+function getBezierPoint(t: number, p0: { x: any; z: any; }, p1: { x: any; z: any; }, p2: { x: any; z: any; }) {
     const x = Math.pow(1 - t, 2) * p0.x + 2 * (1 - t) * t * p1.x + Math.pow(t, 2) * p2.x;
     const z = Math.pow(1 - t, 2) * p0.z + 2 * (1 - t) * t * p1.z + Math.pow(t, 2) * p2.z;
     return { x, z };
 }
 
-// Animation parameters
-const duration = 6; // 6 hours in seconds
-startTime = null;
-
 const clock = new THREE.Clock();
-function animate(time) {
+function animate(time: number) {
     requestAnimationFrame(animate);
+    // Set start time on first frame
     if (!startTime) startTime = time;
+
+    // Calculate elapsed time in seconds
     const elapsedTime = (time - startTime) / 1000; // Convert to seconds
 
-    // Normalize elapsed time
-    const t = Math.min(elapsedTime / duration, 1); // Normalize to [0, 1]
+    // Normalize elapsed time for the animation, starting at 30%
+    const t = Math.min((elapsedTime / duration) + startAtProgress, 1); // Normalize to [0.3, 1]
 
     // Define control points for the Bezier curve
     const p0 = { x: -99, z: 20 }; // Start position
@@ -109,9 +115,9 @@ function animate(time) {
     const position = getBezierPoint(t, p0, p1, p2);
     disc.position.set(position.x, 1, position.z);
     render()
-    // Reset animation if completed
+    // Stop animation if completed
     if (t >= 1) {
-        startTime = null; // Reset for next iteration
+        console.log('Animation finished');
     }
 }
 
@@ -125,5 +131,6 @@ function render() {
 
 
 init().then(() => {
+
     animate(clock.getDelta());
 })

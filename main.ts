@@ -71,10 +71,11 @@ async function init() {
     scene.add(disc);
 
     let theSun = new sun();
-
+    await theSun.main()
+    console.log(theSun.daylightDuration)
     // Animation system setup
     // Define keyframe positions for movement
-    const times = [0, 2, 4]; // Time points in seconds (0s, 3h, 6h)
+    const times = [0, 8, 16]; // Time points in seconds (0s, 3h, 6h)
     const values = [
         -99, 1, 20,  // Start position (left-bottom)
         0, 1, -30,     // Peak position (middle-top, 3 hours in)
@@ -85,7 +86,7 @@ async function init() {
     const positionTrack = new THREE.VectorKeyframeTrack('.position', times, values, THREE.InterpolateSmooth);
 
     // Create an AnimationClip to hold the track
-    const clip = new THREE.AnimationClip('moveInArc', 4, [positionTrack]); // 6 hours = 21600 seconds
+    const clip = new THREE.AnimationClip('moveInArc', 16, [positionTrack]); // 6 hours = 21600 seconds
 
     // Set up the AnimationMixer and bind it to the disc
     mixer = new THREE.AnimationMixer(disc);

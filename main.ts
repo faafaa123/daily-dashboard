@@ -8,6 +8,8 @@ let controls: any;
 let scene: THREE.Scene;
 let renderer: THREE.Renderer;
 let mixer: THREE.AnimationMixer
+let disc: THREE.Object3D<THREE.Object3DEventMap>
+let startTime
 
 async function init() {
     // setup scene and renderer
@@ -41,7 +43,7 @@ async function init() {
     // show axis
     const axesHelper = new THREE.AxesHelper(5000);
     axesHelper.setColors('#fc0303', '#036ffc', '#03fc17')
-    // scene.add(axesHelper);
+    scene.add(axesHelper);
 
     // setup orbitControls
     controls = new OrbitControls(camera, renderer.domElement);
@@ -63,7 +65,7 @@ async function init() {
     const segments = 512; // Number of segments to approximate the circle
     const circleGeometry = new THREE.CircleGeometry(radius, segments);
     const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xC58F05, side: THREE.DoubleSide });
-    const disc = new THREE.Mesh(circleGeometry, circleMaterial);
+    disc = new THREE.Mesh(circleGeometry, circleMaterial);
     disc.rotation.x = Math.PI / 2; // Rotate the disc to lie flat
     disc.position.y = 1
     disc.position.x = -99
@@ -73,36 +75,44 @@ async function init() {
     let theSun = new sun();
     await theSun.main()
     console.log(theSun.daylightDuration)
-    // Animation system setup
-    // Define keyframe positions for movement
-    const times = [0, 8, 16]; // Time points in seconds (0s, 3h, 6h)
-    const values = [
-        -99, 1, 20,  // Start position (left-bottom)
-        0, 1, -30,     // Peak position (middle-top, 3 hours in)
-        99, 1, 20    // End position (right-bottom, 6 hours in)
-    ];
 
-    // Create a VectorKeyframeTrack for the disc's position
-    const positionTrack = new THREE.VectorKeyframeTrack('.position', times, values, THREE.InterpolateSmooth);
 
-    // Create an AnimationClip to hold the track
-    const clip = new THREE.AnimationClip('moveInArc', 16, [positionTrack]); // 6 hours = 21600 seconds
-
-    // Set up the AnimationMixer and bind it to the disc
-    mixer = new THREE.AnimationMixer(disc);
-    const action = mixer.clipAction(clip);
-    action.setLoop(THREE.LoopRepeat, 100); // Animation plays once over 6 hours
-    action.play(); // Start the animation
 
 }
 
+// Function to calculate positions along a Bezier curve
+function getBezierPoint(t, p0, p1, p2) {
+    const x = Math.pow(1 - t, 2) * p0.x + 2 * (1 - t) * t * p1.x + Math.pow(t, 2) * p2.x;
+    const z = Math.pow(1 - t, 2) * p0.z + 2 * (1 - t) * t * p1.z + Math.pow(t, 2) * p2.z;
+    return { x, z };
+}
+
+// Animation parameters
+const duration = 6; // 6 hours in seconds
+startTime = null;
+
 const clock = new THREE.Clock();
-function animate() {
+function animate(time) {
     requestAnimationFrame(animate);
-        // Update the animation mixer on every frame
-        const delta = clock.getDelta();
-        mixer.update(delta);
+    if (!startTime) startTime = time;
+    const elapsedTime = (time - startTime) / 1000; // Convert to seconds
+
+    // Normalize elapsed time
+    const t = Math.min(elapsedTime / duration, 1); // Normalize to [0, 1]
+
+    // Define control points for the Bezier curve
+    const p0 = { x: -99, z: 20 }; // Start position
+    const p1 = { x: 0, z: -70 };    // Peak position (control point)
+    const p2 = { x: 99, z: 20 };   // End position
+
+    // Calculate the current position on the curve
+    const position = getBezierPoint(t, p0, p1, p2);
+    disc.position.set(position.x, 1, position.z);
     render()
+    // Reset animation if completed
+    if (t >= 1) {
+        startTime = null; // Reset for next iteration
+    }
 }
 
 function render() {
@@ -115,5 +125,5 @@ function render() {
 
 
 init().then(() => {
-    animate();
+    animate(clock.getDelta());
 })

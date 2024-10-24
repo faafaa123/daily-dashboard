@@ -8,12 +8,14 @@ let controls: any;
 let scene: THREE.Scene;
 let renderer: THREE.Renderer;
 let mixer: THREE.AnimationMixer
-let disc: THREE.Object3D<THREE.Object3DEventMap>
+let disc: THREE.Mesh
 
 let theSun: sun
 let duration: number
 let startAtProgress: number
 let startTime: number | null
+let radius: number;
+
 
 async function init() {
     // setup scene and renderer
@@ -65,7 +67,7 @@ async function init() {
     scene.add(light);
 
     // Adding a circular disc
-    const radius = 10; // Radius of the disc
+    radius = 10; // Radius of the disc
     const segments = 512; // Number of segments to approximate the circle
     const circleGeometry = new THREE.CircleGeometry(radius, segments);
     const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xC58F05, side: THREE.DoubleSide });
@@ -85,6 +87,8 @@ async function init() {
     startAtProgress = 1-2.73*Math.pow(10, -8)*(theSun.daylightDuration.asMilliseconds()-theSun.elapsedDaylight.asMilliseconds())
     startTime = null;
 
+    addSunRays(disc, 24, 7); // 24 rays with a length of 10 units
+
 }
 
 // Function to calculate positions along a Bezier curve
@@ -92,6 +96,34 @@ function getBezierPoint(t: number, p0: { x: any; z: any; }, p1: { x: any; z: any
     const x = Math.pow(1 - t, 2) * p0.x + 2 * (1 - t) * t * p1.x + Math.pow(t, 2) * p2.x;
     const z = Math.pow(1 - t, 2) * p0.z + 2 * (1 - t) * t * p1.z + Math.pow(t, 2) * p2.z;
     return { x, z };
+}
+
+function addSunRays(disc, numRays, length) {
+    const rayMaterial = new THREE.LineBasicMaterial({ color: 0xC58F05 });
+    
+    for (let i = 0; i < numRays; i++) {
+        const angle = (i / numRays) * Math.PI * 2; // Evenly spaced angles around the circle
+        
+        // Start of the ray (at the edge of the disc)
+        const xStart = radius * Math.cos(angle);
+        const zStart = radius * Math.sin(angle);
+
+        // End of the ray (extending outward from the disc)
+        const xEnd = (radius + length) * Math.cos(angle);
+        const zEnd = (radius + length) * Math.sin(angle);
+        
+        // Create geometry for the ray
+        const rayGeometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(xStart, 1, zStart), // Start point of the ray
+            new THREE.Vector3(xEnd, 1, zEnd)      // End point of the ray
+        ]);
+
+        // Create and add the ray to the scene
+        const ray = new THREE.Line(rayGeometry, rayMaterial);
+        ray.rotation.x = Math.PI / 2;
+        ray.position.z = -1;
+        disc.add(ray);
+    }
 }
 
 const clock = new THREE.Clock();

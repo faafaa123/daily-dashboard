@@ -26,7 +26,7 @@ async function init() {
         0.1,                        // near
         1000                        // far
     );
-    camera.position.set(0, 100, 100); // Position the camera
+    camera.position.set(0, 100, 0); // Position the camera
     camera.lookAt(0, 0, 0); // Look at the center of the scene
 
     // Adding a flat plane
@@ -47,7 +47,7 @@ async function init() {
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
     controls.maxPolarAngle = Math.PI / 2;
-    // controls.target = new THREE.Vector3(1, 1, 1)
+    // controls.target = new THREE.Vector3(0,0,0)
 
     // setup light
     const hemiLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.3);
@@ -55,6 +55,16 @@ async function init() {
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(0, 1, 1).normalize();
     scene.add(light);
+
+    // Adding a circular disc
+    const radius = 10; // Radius of the disc
+    const segments = 512; // Number of segments to approximate the circle
+    const circleGeometry = new THREE.CircleGeometry(radius, segments);
+    const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xC58F05, side: THREE.DoubleSide });
+    const disc = new THREE.Mesh(circleGeometry, circleMaterial);
+    disc.rotation.x = Math.PI / 2; // Rotate the disc to lie flat
+    disc.position.y = 1
+    scene.add(disc);
 
     let theSun = new sun()
 
@@ -68,6 +78,9 @@ function animate() {
 
 function render() {
     renderer.render(scene, camera);
+    // console.log('x' + camera.position.x)
+    // console.log('y' + camera.position.y)
+    // console.log('z' + camera.position.z)
 }
 
 

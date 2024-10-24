@@ -7,6 +7,7 @@ let camera: THREE.OrthographicCamera;
 let controls: any;
 let scene: THREE.Scene;
 let renderer: THREE.Renderer;
+let mixer: THREE.AnimationMixer
 
 async function init() {
     // setup scene and renderer
@@ -70,18 +71,42 @@ async function init() {
     scene.add(disc);
 
     let theSun = new sun();
-    
+
+    // Animation system setup
+    // Define keyframe positions for movement
+    const times = [0, 2, 4]; // Time points in seconds (0s, 3h, 6h)
+    const values = [
+        -99, 1, 20,  // Start position (left-bottom)
+        0, 1, -30,     // Peak position (middle-top, 3 hours in)
+        99, 1, 20    // End position (right-bottom, 6 hours in)
+    ];
+
+    // Create a VectorKeyframeTrack for the disc's position
+    const positionTrack = new THREE.VectorKeyframeTrack('.position', times, values, THREE.InterpolateSmooth);
+
+    // Create an AnimationClip to hold the track
+    const clip = new THREE.AnimationClip('moveInArc', 4, [positionTrack]); // 6 hours = 21600 seconds
+
+    // Set up the AnimationMixer and bind it to the disc
+    mixer = new THREE.AnimationMixer(disc);
+    const action = mixer.clipAction(clip);
+    action.setLoop(THREE.LoopRepeat, 100); // Animation plays once over 6 hours
+    action.play(); // Start the animation
 
 }
 
-
+const clock = new THREE.Clock();
 function animate() {
     requestAnimationFrame(animate);
+        // Update the animation mixer on every frame
+        const delta = clock.getDelta();
+        mixer.update(delta);
     render()
 }
 
 function render() {
     renderer.render(scene, camera);
+
     // console.log('x' + camera.position.x)
     // console.log('y' + camera.position.y)
     // console.log('z' + camera.position.z)

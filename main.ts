@@ -2,6 +2,7 @@ import * as THREE from 'three';
 // @ts-ignore
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { sun } from './classes/sun';
+import moment from 'moment';
 
 let camera: THREE.OrthographicCamera;
 let controls: any;
@@ -84,11 +85,25 @@ async function init() {
 
     // Animation parameters
     duration = theSun.daylightDuration.asSeconds(); // 6 hours in seconds
-    startAtProgress = 1-2.73*Math.pow(10, -8)*(theSun.daylightDuration.asMilliseconds()-theSun.elapsedDaylight.asMilliseconds())
+    startAtProgress = 1 - 2.73 * Math.pow(10, -8) * (theSun.daylightDuration.asMilliseconds() - theSun.elapsedDaylight.asMilliseconds())
     startTime = null;
 
     addSunRays(disc, 24, 7); // 24 rays with a length of 10 units
 
+    // Aktualisiere die Uhrzeit jede Sekunde
+    setInterval(updateClock, 1000);
+
+    // Initialer Aufruf, um sofort die Uhrzeit anzuzeigen
+    updateClock();
+
+}
+
+// Füge dies zu deinem bestehenden JavaScript hinzu
+function updateClock() {
+    const uhrzeit = document.getElementById('uhrzeit');
+    const datum = document.getElementById('datum');
+    uhrzeit!.textContent = moment().format('LT').toString();
+    datum!.textContent = moment().format('ll').toString();
 }
 
 // Function to calculate positions along a Bezier curve
@@ -100,10 +115,10 @@ function getBezierPoint(t: number, p0: { x: any; z: any; }, p1: { x: any; z: any
 
 function addSunRays(disc, numRays, length) {
     const rayMaterial = new THREE.LineBasicMaterial({ color: 0xC58F05 });
-    
+
     for (let i = 0; i < numRays; i++) {
         const angle = (i / numRays) * Math.PI * 2; // Evenly spaced angles around the circle
-        
+
         // Start of the ray (at the edge of the disc)
         const xStart = radius * Math.cos(angle);
         const zStart = radius * Math.sin(angle);
@@ -111,7 +126,7 @@ function addSunRays(disc, numRays, length) {
         // End of the ray (extending outward from the disc)
         const xEnd = (radius + length) * Math.cos(angle);
         const zEnd = (radius + length) * Math.sin(angle);
-        
+
         // Create geometry for the ray
         const rayGeometry = new THREE.BufferGeometry().setFromPoints([
             new THREE.Vector3(xStart, 1, zStart), // Start point of the ray

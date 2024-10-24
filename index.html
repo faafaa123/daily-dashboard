@@ -9,7 +9,7 @@
 			margin: 0;
 		}
 
-		.time {
+		#time {
 			position: absolute;
 			top: 0px;
 			left: 0px;
@@ -20,14 +20,16 @@
 			display: flex;
 			flex-direction: column;
 			justify-content: space-evenly;
-    align-items: center;
+			align-items: center;
 		}
-		.uhrzeit {
+
+		#uhrzeit {
 			font-size: 96px;
 			font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 			color: #DBD9D9;
 		}
-		.datum {
+
+		#datum {
 			font-size: 64px;
 			font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 			color: #DBD9D9;
@@ -36,9 +38,9 @@
 </head>
 
 <body>
-	<div class="time">
-		<div class="uhrzeit">12:21 Uhr</div>
-		<div class="datum">23.10.2024</div>
+	<div id="time">
+		<div id="uhrzeit"></div>
+		<div id="datum"></div>
 	</div>
 	<script type="module" src="/main.ts"></script>
 </body>

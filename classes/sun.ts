@@ -24,19 +24,13 @@ export class sun {
             this.apiUrl
         ).then(async (result: AxiosResponse) => {
             const responseData: any = result.data;
-            console.log(responseData)
             this.sunrise = moment(responseData.results.sunrise);
             this.sunset = moment(responseData.results.sunset);
-        
-            console.log("Sonnenaufgang:", this.sunrise);
-            console.log("Sonnenuntergang:", this.sunset);
 
             this.daylightDuration = moment.duration(this.sunset.diff(this.sunrise));
 
             if (this.currentTime.isAfter(this.sunrise) && this.currentTime.isBefore(this.sunset)) {
                 this.elapsedDaylight = moment.duration(this.currentTime.diff(this.sunrise));
-          
-                console.log(this.elapsedDaylight)
               }
 
         }).catch(async (error: AxiosError) => {

@@ -16,27 +16,24 @@ let startAtProgress: number
 let startTime: number | null
 let radius: number;
 
-
 async function init() {
-    // setup scene and renderer
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Set up an OrthographicCamera
     const aspect = window.innerWidth / window.innerHeight;
     const frustumSize = 100;
     camera = new THREE.OrthographicCamera(
-        frustumSize * aspect / - 2, // left
-        frustumSize * aspect / 2,   // right
-        frustumSize / 2,            // top
-        frustumSize / - 2,          // bottom
-        0.1,                        // near
-        1000                        // far
+        frustumSize * aspect / - 2,
+        frustumSize * aspect / 2,
+        frustumSize / 2,
+        frustumSize / - 2,
+        0.1,
+        1000
     );
-    camera.position.set(0, 100, 0); // Position the camera
-    camera.lookAt(0, 0, 0); // Look at the center of the scene
+    camera.position.set(0, 100, 0);
+    camera.lookAt(0, 0, 0);
 
     // Adding a flat plane
     let planeSize: number = 178;
@@ -67,12 +64,12 @@ async function init() {
     scene.add(light);
 
     // Adding a circular disc
-    radius = 10; // Radius of the disc
-    const segments = 512; // Number of segments to approximate the circle
+    radius = 10;
+    const segments = 512;
     const circleGeometry = new THREE.CircleGeometry(radius, segments);
     const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFDF22, side: THREE.DoubleSide });
     disc = new THREE.Mesh(circleGeometry, circleMaterial);
-    disc.rotation.x = Math.PI / 2; // Rotate the disc to lie flat
+    disc.rotation.x = Math.PI / 2;
     disc.position.y = 1
     disc.position.x = -99
     disc.position.z = 20
@@ -80,45 +77,36 @@ async function init() {
 
     theSun = new sun();
     await theSun.main()
-    console.log(theSun.daylightDuration)
 
     // Animation parameters
-    duration = theSun.daylightDuration.asSeconds(); // 6 hours in seconds
+    duration = theSun.daylightDuration.asSeconds(); // in seconds
     startAtProgress = 1 - 2.73 * Math.pow(10, -8) * (theSun.daylightDuration.asMilliseconds() - theSun.elapsedDaylight.asMilliseconds())
     startTime = null;
 
     addSunRays(disc, 24, 7); // 24 rays with a length of 10 units
 
-    // Aktualisiere die Uhrzeit jede Sekunde
     setInterval(updateClock, 1000);
 
-    // Initialer Aufruf, um sofort die Uhrzeit anzuzeigen
     updateClock();
 
-    // Mondgeometrie (flach und rund)
-    const moonRadius = 10;  // Radius des Mondes
-    const moonSegments = 512;  // Anzahl der Segmente für die Rundung (für eine glatte Darstellung)
+    const moonRadius = 10;
+    const moonSegments = 512;
     const moonGeometry = new THREE.CircleGeometry(moonRadius, moonSegments);
 
-    // Material für eine flache Comic-Darstellung
     const moonTexture = new THREE.TextureLoader().load('./assets/moon.png');
     const moonMaterial = new THREE.MeshBasicMaterial({
         map: moonTexture,
         side: THREE.DoubleSide
     });
 
-    // Mesh erstellen
     const moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
     moonMesh.position.y = 1;
-    // Mond dem Szenen-Graphen hinzufügen
-    scene.add(moonMesh);
+    // scene.add(moonMesh);
 
-    // Optional: Leichte Rotation für eine bessere Sichtbarkeit
     moonMesh.rotation.x = Math.PI / 2;
 
 }
 
-// Füge dies zu deinem bestehenden JavaScript hinzu
 function updateClock() {
     const uhrzeit = document.getElementById('uhrzeit');
     const datum = document.getElementById('datum');
@@ -129,7 +117,6 @@ function updateClock() {
     sunset!.textContent = `Sonnenuntergang in ${theSun.daylightDuration.hours() - theSun.elapsedDaylight.hours()} Stunden`;
 }
 
-// Function to calculate positions along a Bezier curve
 function getBezierPoint(t: number, p0: { x: any; z: any; }, p1: { x: any; z: any; }, p2: { x: any; z: any; }) {
     const x = Math.pow(1 - t, 2) * p0.x + 2 * (1 - t) * t * p1.x + Math.pow(t, 2) * p2.x;
     const z = Math.pow(1 - t, 2) * p0.z + 2 * (1 - t) * t * p1.z + Math.pow(t, 2) * p2.z;
@@ -193,14 +180,9 @@ function animate(time: number) {
 
 function render() {
     renderer.render(scene, camera);
-
-    // console.log('x' + camera.position.x)
-    // console.log('y' + camera.position.y)
-    // console.log('z' + camera.position.z)
 }
 
 
 init().then(() => {
-
     animate(clock.getDelta());
 })

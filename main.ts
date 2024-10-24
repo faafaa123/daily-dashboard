@@ -8,7 +8,6 @@ let camera: THREE.OrthographicCamera;
 let controls: any;
 let scene: THREE.Scene;
 let renderer: THREE.Renderer;
-let mixer: THREE.AnimationMixer
 let disc: THREE.Mesh
 
 let theSun: sun
@@ -42,7 +41,7 @@ async function init() {
     // Adding a flat plane
     let planeSize: number = 178;
     const geometry = new THREE.PlaneGeometry(planeSize, planeSize);
-    const material = new THREE.MeshBasicMaterial({ color: 0x103D67, side: THREE.DoubleSide });
+    const material = new THREE.MeshBasicMaterial({ color: 0x48708D, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2; // Rotate the plane to lie flat
     scene.add(plane);
@@ -71,7 +70,7 @@ async function init() {
     radius = 10; // Radius of the disc
     const segments = 512; // Number of segments to approximate the circle
     const circleGeometry = new THREE.CircleGeometry(radius, segments);
-    const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xC58F05, side: THREE.DoubleSide });
+    const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFDF22, side: THREE.DoubleSide });
     disc = new THREE.Mesh(circleGeometry, circleMaterial);
     disc.rotation.x = Math.PI / 2; // Rotate the disc to lie flat
     disc.position.y = 1
@@ -96,6 +95,27 @@ async function init() {
     // Initialer Aufruf, um sofort die Uhrzeit anzuzeigen
     updateClock();
 
+    // Mondgeometrie (flach und rund)
+    const moonRadius = 10;  // Radius des Mondes
+    const moonSegments = 512;  // Anzahl der Segmente für die Rundung (für eine glatte Darstellung)
+    const moonGeometry = new THREE.CircleGeometry(moonRadius, moonSegments);
+
+    // Material für eine flache Comic-Darstellung
+    const moonTexture = new THREE.TextureLoader().load('./assets/moon.png');
+    const moonMaterial = new THREE.MeshBasicMaterial({
+        map: moonTexture,
+        side: THREE.DoubleSide
+    });
+
+    // Mesh erstellen
+    const moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+    moonMesh.position.y = 1;
+    // Mond dem Szenen-Graphen hinzufügen
+    scene.add(moonMesh);
+
+    // Optional: Leichte Rotation für eine bessere Sichtbarkeit
+    moonMesh.rotation.x = Math.PI / 2;
+
 }
 
 // Füge dies zu deinem bestehenden JavaScript hinzu
@@ -117,7 +137,7 @@ function getBezierPoint(t: number, p0: { x: any; z: any; }, p1: { x: any; z: any
 }
 
 function addSunRays(disc, numRays, length) {
-    const rayMaterial = new THREE.LineBasicMaterial({ color: 0xC58F05 });
+    const rayMaterial = new THREE.LineBasicMaterial({ color: 0xFFDF22 });
 
     for (let i = 0; i < numRays; i++) {
         const angle = (i / numRays) * Math.PI * 2; // Evenly spaced angles around the circle

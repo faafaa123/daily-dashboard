@@ -21,6 +21,11 @@ export class sun {
     radius: number
     disc: THREE.Mesh;
 
+    // Animation parameters
+    duration: any
+    startAtProgress: any
+    startTime: any
+
     constructor(
         scene: THREE.Scene,
     ) {
@@ -41,26 +46,31 @@ export class sun {
                 this.elapsedDaylight = moment.duration(this.currentTime.diff(this.sunrise));
             }
 
+            // Adding a circular disc
+            this.radius = 10;
+            const segments = 512;
+            const circleGeometry = new THREE.CircleGeometry(this.radius, segments);
+            const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFDF22, side: THREE.DoubleSide });
+            this.disc = new THREE.Mesh(circleGeometry, circleMaterial);
+            this.disc.rotation.x = Math.PI / 2;
+            this.disc.position.y = 1
+            this.disc.position.x = -99
+            this.disc.position.z = 20
+            this.scene.add(this.disc);
+
+            this.addSunRays(this.disc, 24, 7); // 24 rays with a length of 10 units
+
+            // Animation parameters
+            this.duration = this.daylightDuration.asSeconds(); // in seconds
+            this.startAtProgress = 1 - 2.73 * Math.pow(10, -8) * (this.daylightDuration.asMilliseconds() - this.elapsedDaylight.asMilliseconds())
+            this.startTime = null;
+
         }).catch(async (error: AxiosError) => {
             console.log(error.response);
         })
-
-        // Adding a circular disc
-        this.radius = 10;
-        const segments = 512;
-        const circleGeometry = new THREE.CircleGeometry(this.radius, segments);
-        const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFDF22, side: THREE.DoubleSide });
-        this.disc = new THREE.Mesh(circleGeometry, circleMaterial);
-        this.disc.rotation.x = Math.PI / 2;
-        this.disc.position.y = 1
-        this.disc.position.x = -99
-        this.disc.position.z = 20
-        this.scene.add(this.disc);
-
-        this.addSunRays(this.disc, 24, 7); // 24 rays with a length of 10 units
     }
 
-    addSunRays(disc, numRays, length) {
+    addSunRays(disc: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>, numRays: number, length: number) {
         const rayMaterial = new THREE.LineBasicMaterial({ color: 0xFFDF22 });
 
         for (let i = 0; i < numRays; i++) {
@@ -86,6 +96,37 @@ export class sun {
             ray.position.z = -1;
             disc.add(ray);
         }
+    }
+
+    animateSun(time: number) {
+        // Set start time on first frame
+        if (!this.startTime) this.startTime = time;
+
+        // Calculate elapsed time in seconds
+        const elapsedTime = (time - this.startTime) / 1000; // Convert to seconds
+
+        // Normalize elapsed time for the animation, starting at 30%
+        const t = Math.min((elapsedTime / this.duration) + this.startAtProgress, 1); // Normalize to [0.3, 1]
+
+        // Define control points for the Bezier curve
+        const p0 = { x: -99, z: 20 }; // Start position
+        const p1 = { x: 0, z: -70 };    // Peak position (control point)
+        const p2 = { x: 99, z: 20 };   // End position
+
+        // Calculate the current position on the curve
+        const position = this.getBezierPoint(t, p0, p1, p2);
+        this.disc.position.set(position.x, 1, position.z);
+
+        // Stop animation if completed
+        if (t >= 1) {
+            console.log('Animation finished');
+        }
+    }
+
+    getBezierPoint(t: number, p0: { x: any; z: any; }, p1: { x: any; z: any; }, p2: { x: any; z: any; }) {
+        const x = Math.pow(1 - t, 2) * p0.x + 2 * (1 - t) * t * p1.x + Math.pow(t, 2) * p2.x;
+        const z = Math.pow(1 - t, 2) * p0.z + 2 * (1 - t) * t * p1.z + Math.pow(t, 2) * p2.z;
+        return { x, z };
     }
 
 }

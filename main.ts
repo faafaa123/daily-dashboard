@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { sun } from './classes/sun';
 import moment from 'moment';
+import { moon } from './classes/moon';
 
 let camera: THREE.OrthographicCamera;
 let controls: any;
@@ -10,9 +11,7 @@ let scene: THREE.Scene;
 let renderer: THREE.Renderer;
 
 let theSun: sun
-let duration: number
-let startAtProgress: number
-let startTime: number | null
+let theMoon: moon
 
 async function init() {
     scene = new THREE.Scene();
@@ -36,7 +35,7 @@ async function init() {
     // Adding a flat plane
     let planeSize: number = 178;
     const geometry = new THREE.PlaneGeometry(planeSize, planeSize);
-    const material = new THREE.MeshBasicMaterial({ color: 0x2574EB, side: THREE.DoubleSide });
+    const material = new THREE.MeshBasicMaterial({ color: 0x103D67, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2; // Rotate the plane to lie flat
     scene.add(plane);
@@ -56,6 +55,9 @@ async function init() {
 
     theSun = new sun(scene);
     await theSun.main()
+
+    theMoon = new moon(scene)
+    await theMoon.main()
 
     // CSS Overlay
     setInterval(updateClock, 1000);

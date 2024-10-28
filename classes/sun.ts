@@ -14,7 +14,7 @@ export class sun {
 
     sunset: moment.Moment
     sunrise: moment.Moment
-    currentTime = moment().subtract(10, 'hours');
+    currentTime = moment()
     daylightDuration: moment.Duration
     elapsedDaylight: moment.Duration
 
@@ -50,7 +50,7 @@ export class sun {
             this.radius = 10;
             const segments = 512;
             const circleGeometry = new THREE.CircleGeometry(this.radius, segments);
-            const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xFFDF22, side: THREE.DoubleSide });
+            const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xC58F05, side: THREE.DoubleSide });
             this.disc = new THREE.Mesh(circleGeometry, circleMaterial);
             this.disc.rotation.x = Math.PI / 2;
             this.disc.position.y = 1
@@ -58,7 +58,8 @@ export class sun {
             this.disc.position.z = 20
             this.scene.add(this.disc);
 
-            this.addSunRays(this.disc, 24, 7); // 24 rays with a length of 10 units
+            // 24 rays with a length of 10 units
+            // this.addSunRays(this.disc, 24, 7);
 
             // Animation parameters
             this.duration = this.daylightDuration.asSeconds(); // in seconds
@@ -71,7 +72,7 @@ export class sun {
     }
 
     addSunRays(disc: THREE.Mesh<THREE.BufferGeometry<THREE.NormalBufferAttributes>, THREE.Material | THREE.Material[], THREE.Object3DEventMap>, numRays: number, length: number) {
-        const rayMaterial = new THREE.LineBasicMaterial({ color: 0xFFDF22 });
+        const rayMaterial = new THREE.LineBasicMaterial({ color: 0xC58F05 });
 
         for (let i = 0; i < numRays; i++) {
             const angle = (i / numRays) * Math.PI * 2; // Evenly spaced angles around the circle

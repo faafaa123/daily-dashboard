@@ -5,6 +5,7 @@ import { sun } from './classes/sun';
 import moment from 'moment';
 import { moon } from './classes/moon';
 
+
 let camera: THREE.OrthographicCamera;
 let controls: any;
 let scene: THREE.Scene;
@@ -51,7 +52,7 @@ async function init() {
     controls.dampingFactor = 0.25;
     controls.screenSpacePanning = false;
     controls.maxPolarAngle = Math.PI / 2;
-    // controls.target = new THREE.Vector3(0,0,0)
+    controls.target = new THREE.Vector3(0,0,0)
 
     theSun = new sun(scene);
     await theSun.main()

@@ -28,7 +28,7 @@ export class moon {
             console.log(moonrise)
             console.log(moonset)
 
-
+            
         }).catch(async (error: AxiosError) => {
             console.log(error.response);
         })

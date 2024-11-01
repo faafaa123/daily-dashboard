@@ -57,8 +57,8 @@ async function init() {
     theSun = new sun(scene);
     await theSun.main()
 
-    theMoon = new moon(scene)
-    await theMoon.main()
+    // theMoon = new moon(scene)
+    // await theMoon.main()
 
     // CSS Overlay
     setInterval(updateClock, 1000);
@@ -72,15 +72,19 @@ function updateClock() {
     uhrzeit!.textContent = moment().format('LT').toString();
     datum!.textContent = moment().format('ll').toString();
 
-    const sunset = document.getElementById('sunset');
-    sunset!.textContent = `Sonnenuntergang in ${theSun.daylightDuration.hours() - theSun.elapsedDaylight.hours()} Stunden`;
+    // const sunset = document.getElementById('sunset');
+    // sunset!.textContent = `Sonnenuntergang in ${theSun.daylightDuration.hours() - theSun.elapsedDaylight.hours()} Stunden`;
 }
 
 const clock = new THREE.Clock();
 
 function animate(time: number) {
     requestAnimationFrame(animate);
-    theSun.animateSun(time)
+    if (theSun.isDay) {
+        theSun.animateSun(time)
+    } else {
+        theSun.animateMoon(time)
+    }
     render()
 }
 

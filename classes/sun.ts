@@ -106,13 +106,13 @@ export class sun {
                 this.moonlightDuration = moment.duration(moment(responseData.results.sunrise).diff(this.sunset))
                 console.log('moon duration')
                 console.log(this.moonlightDuration)
-                this.elapsedMoonlight = moment.duration(moment().diff(moment(responseData.results.sunrise)));
+                this.elapsedMoonlight = moment.duration(moment().diff(moment(this.sunrise)));
                 console.log('elapsedMoonLight')
                 console.log(this.elapsedMoonlight)
 
-                this.startAtProgress = 1.94 * Math.pow(10, -8) * (this.moonlightDuration.asMilliseconds() - this.elapsedMoonlight.asMilliseconds())
+                this.startAtProgress = 1 - (1.94 * Math.pow(10, -8) * (this.moonlightDuration.asMilliseconds() - this.elapsedMoonlight.asMilliseconds()) -1)
                 console.log('this.startAtProgress')
-                this.startAtProgress = 0.7
+                // this.startAtProgress = 0.7
                 console.log(this.startAtProgress)
                 this.startTime = null;
                 }).catch(async (error: any) => {
